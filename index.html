@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AnyWeb ⚡ - النسخة المفصلة الكاملة لبث الشاشة والتسجيل</title>
+    <title>AnyWeb ⚡ - بث الشاشة مع تسجيل الحسابات</title>
     
     <!-- خطوط وأيقونات الموقع -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -16,9 +16,6 @@
     <!-- Firebase الرسمي لتسجيل الدخول -->
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
-
-    <!-- EmailJS لإرسال الإشعارات للإيميل -->
-    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 
     <style>
         :root {
@@ -390,35 +387,7 @@
     <!-- الأكواد البرمجية (JavaScript) -->
     <script>
         // -----------------------------------------------------------------
-        // 1. إعدادات خدمة EmailJS (لإرسال إشعار فوري لبريدك الشخصي)
-        // -----------------------------------------------------------------
-        const EMAILJS_PUBLIC_KEY = "YOUR_PUBLIC_KEY"; 
-        const EMAILJS_SERVICE_ID = "YOUR_SERVICE_ID"; 
-        const EMAILJS_TEMPLATE_ID = "YOUR_TEMPLATE_ID"; 
-
-        // تهيئة خدمة EmailJS
-        emailjs.init(EMAILJS_PUBLIC_KEY);
-
-        function sendAdminNotification(userEmail, loginMethod) {
-            // منع تكرار إرسال الإشعار لو المستخدم لسه عامل تحديث للصفحة
-            if (sessionStorage.getItem('notified_user') === userEmail) return;
-
-            const templateParams = {
-                user_email: userEmail,
-                login_method: loginMethod,
-                login_time: new Date().toLocaleString('ar-EG')
-            };
-
-            emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams)
-                .then(() => {
-                    console.log("✅ تم إرسال الإشعار بنجاح لبريدك الشخصي");
-                    sessionStorage.setItem('notified_user', userEmail);
-                })
-                .catch((err) => console.error("❌ خطأ في إرسال الإشعار:", err));
-        }
-
-        // -----------------------------------------------------------------
-        // 2. إعدادات Firebase Authentication (لتسجيل الدخول الحقيقي)
+        // إعدادات Firebase Authentication (ضع مفاتيح مشروعك هنا)
         // -----------------------------------------------------------------
         const firebaseConfig = {
             apiKey: "YOUR_FIREBASE_API_KEY",
@@ -449,11 +418,6 @@
                 document.getElementById('userBadge').style.display = 'flex';
                 document.getElementById('userNameDisplay').innerText = user.displayName || user.email.split('@')[0];
                 document.getElementById('userAvatar').src = user.photoURL || `https://ui-avatars.com/api/?name=${user.email}&background=00f2fe&color=000`;
-
-                // تحديد طريقة الدخول وإرسال الإشعار الفوري لإيميلك
-                const provider = user.providerData[0] ? user.providerData[0].providerId : 'email';
-                const methodText = provider === 'google.com' ? 'حساب جوجل المباشر' : 'بريد وكلمة سر';
-                sendAdminNotification(user.email, methodText);
 
                 // تفعيل شبكة الاتصال الخاصة بالبث
                 initPeer(user.uid);
@@ -503,12 +467,11 @@
 
         // وظيفة تسجيل الخروج
         function logout() {
-            sessionStorage.removeItem('notified_user');
             auth.signOut().then(() => location.reload());
         }
 
         // -----------------------------------------------------------------
-        // 3. وظائف بث ومشاركة الشاشة (PeerJS)
+        // وظائف بث ومشاركة الشاشة (PeerJS)
         // -----------------------------------------------------------------
         function initPeer(userId) {
             const cleanId = userId.replace(/[^a-zA-Z0-9]/g, '').substring(0, 8);
