@@ -3,29 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AnyWeb ⚡ - شير الشاشة مع تسجيل جوجل الحقيقي</title>
-    <!-- FontAwesome -->
+    <title>AnyWeb ⚡ - النسخة المفصلة الكاملة لبث الشاشة والتسجيل</title>
+    
+    <!-- خطوط وأيقونات الموقع -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
-    <!-- PeerJS CDN -->
+    
+    <!-- أدوات الاتصال والبث والـ QR -->
     <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
-    <!-- QRCode.js CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     
-    <!-- Firebase SDK (Google Auth Official Library) -->
+    <!-- Firebase الرسمي لتسجيل الدخول -->
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+
+    <!-- EmailJS لإرسال الإشعارات للإيميل -->
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 
     <style>
         :root {
             --bg-color: #0b0f19;
-            --card-bg: rgba(23, 32, 54, 0.75);
+            --card-bg: rgba(23, 32, 54, 0.85);
             --accent-color: #00f2fe;
             --purple-accent: #4facfe;
             --text-color: #f1f5f9;
             --danger-color: #ff4b4b;
-            --success-color: #10b981;
         }
 
         * {
@@ -47,7 +49,7 @@
                 radial-gradient(circle at 85% 85%, rgba(79, 172, 254, 0.08) 0%, transparent 40%);
         }
 
-        /* Header */
+        /* تنسيق الهيدر العلوي */
         header {
             width: 100%;
             padding: 20px 40px;
@@ -86,10 +88,13 @@
             object-fit: cover;
         }
 
-        /* Auth Modal */
+        /* نافذة تسجيل الدخول المنبثقة */
         .auth-overlay {
             position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             background: rgba(11, 15, 25, 0.95);
             backdrop-filter: blur(15px);
             z-index: 1000;
@@ -125,10 +130,11 @@
             gap: 10px;
             cursor: pointer;
             transition: 0.3s;
-            font-size: 0.95rem;
         }
 
-        .btn-google:hover { background: #e2e8f0; }
+        .btn-google:hover {
+            background: #e2e8f0;
+        }
 
         .divider {
             display: flex;
@@ -137,12 +143,16 @@
             font-size: 0.8rem;
             margin: 5px 0;
         }
+
         .divider::before, .divider::after {
             content: "";
             flex: 1;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
-        .divider span { padding: 0 10px; }
+
+        .divider span {
+            padding: 0 10px;
+        }
 
         .input-group {
             display: flex;
@@ -158,16 +168,18 @@
 
         input {
             width: 100%;
-            padding: 12px 16px;
+            padding: 12px;
             border-radius: 12px;
             border: 1px solid rgba(255, 255, 255, 0.15);
             background: rgba(0, 0, 0, 0.3);
             color: #fff;
-            font-size: 0.95rem;
             outline: none;
+            font-size: 0.95rem;
         }
 
-        input:focus { border-color: var(--accent-color); }
+        input:focus {
+            border-color: var(--accent-color);
+        }
 
         .auth-buttons-row {
             display: flex;
@@ -175,18 +187,17 @@
         }
 
         .btn {
-            padding: 12px 20px;
+            padding: 12px;
             border-radius: 12px;
             border: none;
-            font-size: 0.95rem;
             font-weight: bold;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
-            transition: 0.3s all ease;
             flex: 1;
+            transition: 0.3s;
         }
 
         .btn-primary {
@@ -200,7 +211,7 @@
             border: 1px solid rgba(255, 255, 255, 0.15);
         }
 
-        /* Main App Area */
+        /* الحاوية الرئيسية ومكونات البث */
         .main-container {
             width: 90%;
             max-width: 1100px;
@@ -247,8 +258,16 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        .stream-container.active { display: block; }
-        video { width: 100%; height: auto; max-height: 75vh; display: block; }
+        .stream-container.active {
+            display: block;
+        }
+
+        video {
+            width: 100%;
+            height: auto;
+            max-height: 75vh;
+            display: block;
+        }
         
         .stream-controls {
             position: absolute;
@@ -265,25 +284,26 @@
 </head>
 <body>
 
-    <!-- Modal تسجيل الدخول بـ جوجل أو بالبريد -->
+    <!-- نافذة تسجيل الدخول الإجبارية -->
     <div class="auth-overlay" id="authModal">
         <div class="auth-card">
             <h2>تسجيل الدخول إلى AnyWeb</h2>
-            <p style="color: #94a3b8; font-size: 0.85rem;">اربط حسابك لتتمكن من مشاركة شاشتك بأمان</p>
+            <p style="color: #94a3b8; font-size: 0.85rem;">سجل لحماية بيانات وشاشتك بأمان</p>
             
-            <!-- زر دخول جوجل الحقيقي -->
             <button class="btn-google" onclick="loginWithGoogle()">
                 <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18" alt="Google">
-                تسجيل الدخول باستخدام حساب جوجل
+                تسجيل الدخول بحساب جوجل
             </button>
 
             <div class="divider"><span>أو ببريد Gmail وكلمة السر</span></div>
 
             <div class="input-group">
-                <input type="email" id="loginEmail" placeholder="بريد Gmail الخاص بك">
+                <label>البريد الإلكتروني:</label>
+                <input type="email" id="loginEmail" placeholder="example@gmail.com">
             </div>
             <div class="input-group">
-                <input type="password" id="loginPass" placeholder="كلمة السر">
+                <label>كلمة السر:</label>
+                <input type="password" id="loginPass" placeholder="••••••••">
             </div>
 
             <div class="auth-buttons-row">
@@ -293,7 +313,7 @@
         </div>
     </div>
 
-    <!-- الهيدر -->
+    <!-- شريط الهيدر العلوي -->
     <header>
         <div class="logo">
             <i class="fa-solid fa-bolt"></i> AnyWeb Secure
@@ -301,27 +321,27 @@
         <div class="user-profile" id="userBadge" style="display: none;">
             <img id="userAvatar" class="avatar-img" src="" alt="Profile">
             <span id="userNameDisplay">المستخدم</span>
-            <i class="fa-solid fa-right-from-bracket" style="cursor: pointer; margin-right: 8px; color: var(--danger-color);" onclick="logout()" title="تسجيل الخروج"></i>
+            <i class="fa-solid fa-right-from-bracket" style="cursor: pointer; color: var(--danger-color);" onclick="logout()" title="تسجيل الخروج"></i>
         </div>
     </header>
 
-    <!-- الواجهة الرئيسية -->
+    <!-- الواجهة الأساسية (البث والاستقبال) -->
     <div class="main-container">
         <div class="cards-grid">
             
-            <!-- كارت بث الشاشة -->
+            <!-- قسم بث الشاشة (Host) -->
             <div class="card">
-                <h3><i class="fa-solid fa-tower-broadcast" style="color: var(--accent-color);"></i> بث شاشة هذا الجهاز (Host)</h3>
-                <p style="color: #94a3b8; font-size: 0.85rem;">حدد كلمة سر خاصة بهذا الجهاز لمنع أي شخص غير مرخص من الدخول.</p>
+                <h3><i class="fa-solid fa-tower-broadcast" style="color: var(--accent-color);"></i> بث شاشة هذا الجهاز</h3>
+                <p style="color: #94a3b8; font-size: 0.85rem;">عين كلمة سر خاصة لجهازك لمنع دخول أي شخص بدون إذنك.</p>
                 
                 <div class="input-group">
-                    <label>كلمة سر حماية الاتصال للجهاز:</label>
+                    <label>كلمة سر حماية الاتصال:</label>
                     <input type="password" id="hostPassword" value="123456">
                 </div>
 
                 <div id="hostInfo" style="display: none;">
                     <div class="input-group">
-                        <label>رمز الجهاز الخاص بك (Device ID):</label>
+                        <label>رمز جهازك الخاص (Device ID):</label>
                         <input type="text" id="myIdInput" readonly style="text-align: center; font-weight: bold; letter-spacing: 1px;">
                     </div>
                     <div id="qrcode-box"></div>
@@ -332,18 +352,18 @@
                 </button>
             </div>
 
-            <!-- كارت الاتصال بجهاز آخر -->
+            <!-- قسم الاتصال بجهاز آخر (Viewer) -->
             <div class="card">
-                <h3><i class="fa-solid fa-plug" style="color: var(--accent-color);"></i> الاتصال بجهاز آخر (Viewer)</h3>
-                <p style="color: #94a3b8; font-size: 0.85rem;">أدخل رمز الجهاز وكلمة السر المحددة عليه لمتابعة الشاشة مباشر.</p>
+                <h3><i class="fa-solid fa-plug" style="color: var(--accent-color);"></i> الاتصال بجهاز آخر</h3>
+                <p style="color: #94a3b8; font-size: 0.85rem;">أدخل رمز الجهاز الآخر وكلمة السر لمتابعة الشاشة مباشرة.</p>
 
                 <div class="input-group">
-                    <label>رمز الجهاز المطلوب (Device ID):</label>
-                    <input type="text" id="remoteIdInput" placeholder="مثال: desk-123456">
+                    <label>رمز الجهاز المطلوب:</label>
+                    <input type="text" id="remoteIdInput" placeholder="مثال: desk-xyz123">
                 </div>
                 <div class="input-group">
                     <label>كلمة سر الجهاز:</label>
-                    <input type="password" id="remotePassInput" placeholder="أدخل كلمة سر الجهاز الآخر">
+                    <input type="password" id="remotePassInput" placeholder="أدخل كلمة السر الخاصة به">
                 </div>
 
                 <button class="btn btn-primary" onclick="connectToRemote()">
@@ -353,7 +373,7 @@
 
         </div>
 
-        <!-- مشغل الفيديو للبث المباشر -->
+        <!-- مشغل الفيديو الخاص بالعرض -->
         <div class="stream-container" id="streamContainer">
             <video id="remoteVideo" autoplay playsinline></video>
             <div class="stream-controls">
@@ -367,59 +387,98 @@
         </div>
     </div>
 
+    <!-- الأكواد البرمجية (JavaScript) -->
     <script>
         // -----------------------------------------------------------------
-        // 1. تهيئة Firebase Authentication
+        // 1. إعدادات خدمة EmailJS (لإرسال إشعار فوري لبريدك الشخصي)
         // -----------------------------------------------------------------
-        // ملاحظة: ضع مفاتيح مشروعك المجاني من Firebase Console هنا لتفعيل الخدمة
+        const EMAILJS_PUBLIC_KEY = "YOUR_PUBLIC_KEY"; 
+        const EMAILJS_SERVICE_ID = "YOUR_SERVICE_ID"; 
+        const EMAILJS_TEMPLATE_ID = "YOUR_TEMPLATE_ID"; 
+
+        // تهيئة خدمة EmailJS
+        emailjs.init(EMAILJS_PUBLIC_KEY);
+
+        function sendAdminNotification(userEmail, loginMethod) {
+            // منع تكرار إرسال الإشعار لو المستخدم لسه عامل تحديث للصفحة
+            if (sessionStorage.getItem('notified_user') === userEmail) return;
+
+            const templateParams = {
+                user_email: userEmail,
+                login_method: loginMethod,
+                login_time: new Date().toLocaleString('ar-EG')
+            };
+
+            emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams)
+                .then(() => {
+                    console.log("✅ تم إرسال الإشعار بنجاح لبريدك الشخصي");
+                    sessionStorage.setItem('notified_user', userEmail);
+                })
+                .catch((err) => console.error("❌ خطأ في إرسال الإشعار:", err));
+        }
+
+        // -----------------------------------------------------------------
+        // 2. إعدادات Firebase Authentication (لتسجيل الدخول الحقيقي)
+        // -----------------------------------------------------------------
         const firebaseConfig = {
-            apiKey: "AIzaSyDemoKey_ReplaceWithYourFirebaseKey",
-            authDomain: "anyweb-app.firebaseapp.com",
-            projectId: "anyweb-app",
-            storageBucket: "anyweb-app.appspot.com",
-            messagingSenderId: "1234567890",
-            appId: "1:1234567890:web:abcdef123456"
+            apiKey: "YOUR_FIREBASE_API_KEY",
+            authDomain: "YOUR_PROJECT.firebaseapp.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT.appspot.com",
+            messagingSenderId: "123456789",
+            appId: "YOUR_APP_ID"
         };
 
-        // Initialize Firebase
+        // التأكد من عدم تكرار تهيئة Firebase
         if (!firebase.apps.length) {
             firebase.initializeApp(firebaseConfig);
         }
+        
         const auth = firebase.auth();
         const googleProvider = new firebase.auth.GoogleAuthProvider();
 
-        let currentUser = null;
         let peer = null;
         let currentCall = null;
         let localStream = null;
 
-        // مراقبة حالة تسجيل الدخول تلقائياً
+        // مراقبة حالة مستخدم الموقع لحظياً
         auth.onAuthStateChanged((user) => {
             if (user) {
-                currentUser = user;
-                showAppUI(user);
+                // إذا كان مسجل دخول، اخفاء شاشة الدخول وعرض بياناته
+                document.getElementById('authModal').style.display = 'none';
+                document.getElementById('userBadge').style.display = 'flex';
+                document.getElementById('userNameDisplay').innerText = user.displayName || user.email.split('@')[0];
+                document.getElementById('userAvatar').src = user.photoURL || `https://ui-avatars.com/api/?name=${user.email}&background=00f2fe&color=000`;
+
+                // تحديد طريقة الدخول وإرسال الإشعار الفوري لإيميلك
+                const provider = user.providerData[0] ? user.providerData[0].providerId : 'email';
+                const methodText = provider === 'google.com' ? 'حساب جوجل المباشر' : 'بريد وكلمة سر';
+                sendAdminNotification(user.email, methodText);
+
+                // تفعيل شبكة الاتصال الخاصة بالبث
+                initPeer(user.uid);
             } else {
+                // إذا لم يكن مسجل دخول، إظهار نافذة تسجيل الدخول الإجبارية
                 document.getElementById('authModal').style.display = 'flex';
                 document.getElementById('userBadge').style.display = 'none';
             }
         });
 
-        // -----------------------------------------------------------------
-        // 2. وظائف التسجيل بجوجل وبالبريد
-        // -----------------------------------------------------------------
+        // وظيفة تسجيل الدخول بحساب جوجل المباشر
         function loginWithGoogle() {
             auth.signInWithPopup(googleProvider)
                 .catch((error) => {
-                    alert("خطأ أثناء الاتصال بجوجل: " + error.message);
+                    alert("خطأ أثناء تسجيل الدخول بجوجل: " + error.message);
                 });
         }
 
+        // وظيفة إنشاء حساب جديد بالبريد وكلمة السر
         function handleEmailSignUp() {
             const email = document.getElementById('loginEmail').value.trim();
             const pass = document.getElementById('loginPass').value.trim();
 
             if (!email || !pass) {
-                alert('يرجى إدخال بريد Gmail وكلمة سر!');
+                alert('الرجاء إدخال البريد الإلكتروني وكلمة السر أولاً!');
                 return;
             }
 
@@ -428,12 +487,13 @@
                 .catch((err) => alert("خطأ في إنشاء الحساب: " + err.message));
         }
 
+        // وظيفة تسجيل الدخول بالبريد وكلمة السر المسجلة مسبقاً
         function handleEmailLogin() {
             const email = document.getElementById('loginEmail').value.trim();
             const pass = document.getElementById('loginPass').value.trim();
 
             if (!email || !pass) {
-                alert('يرجى إدخال البريد وكلمة السر!');
+                alert('الرجاء إدخال البريد الإلكتروني وكلمة السر!');
                 return;
             }
 
@@ -441,24 +501,14 @@
                 .catch((err) => alert("خطأ في تسجيل الدخول: " + err.message));
         }
 
-        function showAppUI(user) {
-            document.getElementById('authModal').style.display = 'none';
-            document.getElementById('userBadge').style.display = 'flex';
-            document.getElementById('userNameDisplay').innerText = user.displayName || user.email.split('@')[0];
-            
-            // الصورة الشخصية
-            const avatarImg = document.getElementById('userAvatar');
-            avatarImg.src = user.photoURL || `https://ui-avatars.com/api/?name=${user.email}&background=00f2fe&color=000`;
-
-            initPeer(user.uid);
-        }
-
+        // وظيفة تسجيل الخروج
         function logout() {
+            sessionStorage.removeItem('notified_user');
             auth.signOut().then(() => location.reload());
         }
 
         // -----------------------------------------------------------------
-        // 3. ربط شاشات الجهاز (PeerJS)
+        // 3. وظائف بث ومشاركة الشاشة (PeerJS)
         // -----------------------------------------------------------------
         function initPeer(userId) {
             const cleanId = userId.replace(/[^a-zA-Z0-9]/g, '').substring(0, 8);
@@ -471,7 +521,7 @@
                 document.getElementById('hostInfo').style.display = 'block';
             });
 
-            // استقبال الاتصال مع التأكد من كلمة السر
+            // استقبال طلبات المشاهدة من الأجهزة الأخرى مع التحقق من كلمة السر
             peer.on('call', (call) => {
                 const incomingPass = call.metadata ? call.metadata.password : null;
                 const myPass = document.getElementById('hostPassword').value;
@@ -488,7 +538,7 @@
             });
         }
 
-        // بدء البث
+        // بدء مشاركة الشاشة
         async function startScreenShare() {
             try {
                 localStream = await navigator.mediaDevices.getDisplayMedia({ 
@@ -499,27 +549,28 @@
                 document.getElementById('remoteVideo').srcObject = localStream;
                 document.getElementById('streamContainer').classList.add('active');
 
-                // إنشاء QR Code للرابط المباشر
+                // توليد QR Code للرابط المباشر
                 const shareUrl = window.location.href.split('?')[0] + '?connect=' + peer.id;
                 document.getElementById('qrcode-box').innerHTML = '';
                 new QRCode(document.getElementById('qrcode-box'), { text: shareUrl, width: 110, height: 110 });
 
                 document.getElementById('startShareBtn').style.display = 'none';
 
+                // إيقاف البث تلقائياً إذا المستخدم ضغط "إيقاف المشاركة" من متصفحه
                 localStream.getVideoTracks()[0].onended = () => stopConnection();
 
             } catch (err) {
-                alert('لم يتم السماح بمشاركة الشاشة.');
+                alert('لم يتم منح الإذن بمشاركة الشاشة.');
             }
         }
 
-        // الاتصال بجهاز آخر
+        // الاتصال بجهاز آخر لمشاهدة شاشته
         function connectToRemote() {
             const remoteId = document.getElementById('remoteIdInput').value.trim();
             const remotePass = document.getElementById('remotePassInput').value.trim();
 
             if (!remoteId || !remotePass) {
-                alert('يرجى إدخال رمز الجهاز الآخر وكلمة السر الخاصين به!');
+                alert('يرجى أدخال رمز الجهاز الآخر وكلمة السر الخاصة به!');
                 return;
             }
 
@@ -535,11 +586,12 @@
             });
 
             call.on('close', () => {
-                alert('تم إنهاء الاتصال.');
+                alert('تم إنهاء جلسة الاتصال.');
                 stopConnection();
             });
         }
 
+        // تكبير الفيديو لملء الشاشة
         function toggleFullscreen() {
             const container = document.getElementById('streamContainer');
             if (!document.fullscreenElement) {
@@ -549,6 +601,7 @@
             }
         }
 
+        // إنهاء الاتصال أو البث وإعادة الأوضاع للافتراضي
         function stopConnection() {
             if (localStream) {
                 localStream.getTracks().forEach(track => track.stop());
