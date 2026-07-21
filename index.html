@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AnyWeb ⚡ - بث الشاشة مع تسجيل الحسابات</title>
+    <title>AnyWeb ⚡ - بث الشاشة السريع</title>
     
     <!-- خطوط وأيقونات الموقع -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -12,10 +12,6 @@
     <!-- أدوات الاتصال والبث والـ QR -->
     <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    
-    <!-- Firebase الرسمي لتسجيل الدخول -->
-    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 
     <style>
         :root {
@@ -46,7 +42,6 @@
                 radial-gradient(circle at 85% 85%, rgba(79, 172, 254, 0.08) 0%, transparent 40%);
         }
 
-        /* تنسيق الهيدر العلوي */
         header {
             width: 100%;
             padding: 20px 40px;
@@ -78,14 +73,6 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        .avatar-img {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            object-fit: cover;
-        }
-
-        /* نافذة تسجيل الدخول المنبثقة */
         .auth-overlay {
             position: fixed;
             top: 0;
@@ -112,43 +99,6 @@
             display: flex;
             flex-direction: column;
             gap: 16px;
-        }
-
-        .btn-google {
-            background: #ffffff;
-            color: #333;
-            font-weight: bold;
-            border: none;
-            padding: 12px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-
-        .btn-google:hover {
-            background: #e2e8f0;
-        }
-
-        .divider {
-            display: flex;
-            align-items: center;
-            color: #64748b;
-            font-size: 0.8rem;
-            margin: 5px 0;
-        }
-
-        .divider::before, .divider::after {
-            content: "";
-            flex: 1;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .divider span {
-            padding: 0 10px;
         }
 
         .input-group {
@@ -178,11 +128,6 @@
             border-color: var(--accent-color);
         }
 
-        .auth-buttons-row {
-            display: flex;
-            gap: 10px;
-        }
-
         .btn {
             padding: 12px;
             border-radius: 12px;
@@ -193,7 +138,7 @@
             align-items: center;
             justify-content: center;
             gap: 8px;
-            flex: 1;
+            width: 100%;
             transition: 0.3s;
         }
 
@@ -202,13 +147,6 @@
             color: #000;
         }
 
-        .btn-secondary {
-            background: rgba(255, 255, 255, 0.1);
-            color: #fff;
-            border: 1px solid rgba(255, 255, 255, 0.15);
-        }
-
-        /* الحاوية الرئيسية ومكونات البث */
         .main-container {
             width: 90%;
             max-width: 1100px;
@@ -281,32 +219,18 @@
 </head>
 <body>
 
-    <!-- نافذة تسجيل الدخول الإجبارية -->
+    <!-- نافذة تسجيل دخول محلية فورية بدون أي تعقيد -->
     <div class="auth-overlay" id="authModal">
         <div class="auth-card">
             <h2>تسجيل الدخول إلى AnyWeb</h2>
-            <p style="color: #94a3b8; font-size: 0.85rem;">سجل لحماية بيانات وشاشتك بأمان</p>
+            <p style="color: #94a3b8; font-size: 0.85rem;">اكتب اسمك أو إيميلك للبدء فوراً</p>
             
-            <button class="btn-google" onclick="loginWithGoogle()">
-                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18" alt="Google">
-                تسجيل الدخول بحساب جوجل
-            </button>
-
-            <div class="divider"><span>أو ببريد Gmail وكلمة السر</span></div>
-
             <div class="input-group">
-                <label>البريد الإلكتروني:</label>
-                <input type="email" id="loginEmail" placeholder="example@gmail.com">
-            </div>
-            <div class="input-group">
-                <label>كلمة السر:</label>
-                <input type="password" id="loginPass" placeholder="••••••••">
+                <label>اسم المستخدم أو البريد:</label>
+                <input type="text" id="userNameInput" placeholder="مثال: Anas Sharaf">
             </div>
 
-            <div class="auth-buttons-row">
-                <button class="btn btn-primary" onclick="handleEmailLogin()">دخول</button>
-                <button class="btn btn-secondary" onclick="handleEmailSignUp()">إنشاء حساب</button>
-            </div>
+            <button class="btn btn-primary" onclick="localLogin()">دخول فوري</button>
         </div>
     </div>
 
@@ -316,7 +240,6 @@
             <i class="fa-solid fa-bolt"></i> AnyWeb Secure
         </div>
         <div class="user-profile" id="userBadge" style="display: none;">
-            <img id="userAvatar" class="avatar-img" src="" alt="Profile">
             <span id="userNameDisplay">المستخدم</span>
             <i class="fa-solid fa-right-from-bracket" style="cursor: pointer; color: var(--danger-color);" onclick="logout()" title="تسجيل الخروج"></i>
         </div>
@@ -374,10 +297,10 @@
         <div class="stream-container" id="streamContainer">
             <video id="remoteVideo" autoplay playsinline></video>
             <div class="stream-controls">
-                <button class="btn btn-secondary" onclick="toggleFullscreen()">
+                <button class="btn btn-primary" style="width: auto; padding: 8px 15px;" onclick="toggleFullscreen()">
                     <i class="fa-solid fa-expand"></i> ملء الشاشة
                 </button>
-                <button class="btn btn-secondary" style="color: var(--danger-color);" onclick="stopConnection()">
+                <button class="btn btn-primary" style="width: auto; padding: 8px 15px; background: var(--danger-color); color: #fff;" onclick="stopConnection()">
                     <i class="fa-solid fa-power-off"></i> إنهاء الاتصال
                 </button>
             </div>
@@ -386,97 +309,44 @@
 
     <!-- الأكواد البرمجية (JavaScript) -->
     <script>
-        // -----------------------------------------------------------------
-        // إعدادات Firebase Authentication (ضع مفاتيح مشروعك هنا)
-        // -----------------------------------------------------------------
-        const firebaseConfig = {
-            apiKey: "YOUR_FIREBASE_API_KEY",
-            authDomain: "YOUR_PROJECT.firebaseapp.com",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_PROJECT.appspot.com",
-            messagingSenderId: "123456789",
-            appId: "YOUR_APP_ID"
-        };
-
-        // التأكد من عدم تكرار تهيئة Firebase
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
-        
-        const auth = firebase.auth();
-        const googleProvider = new firebase.auth.GoogleAuthProvider();
-
         let peer = null;
         let currentCall = null;
         let localStream = null;
 
-        // مراقبة حالة مستخدم الموقع لحظياً
-        auth.onAuthStateChanged((user) => {
-            if (user) {
-                // إذا كان مسجل دخول، اخفاء شاشة الدخول وعرض بياناته
-                document.getElementById('authModal').style.display = 'none';
-                document.getElementById('userBadge').style.display = 'flex';
-                document.getElementById('userNameDisplay').innerText = user.displayName || user.email.split('@')[0];
-                document.getElementById('userAvatar').src = user.photoURL || `https://ui-avatars.com/api/?name=${user.email}&background=00f2fe&color=000`;
-
-                // تفعيل شبكة الاتصال الخاصة بالبث
-                initPeer(user.uid);
-            } else {
-                // إذا لم يكن مسجل دخول، إظهار نافذة تسجيل الدخول الإجبارية
-                document.getElementById('authModal').style.display = 'flex';
-                document.getElementById('userBadge').style.display = 'none';
+        // التحقق مما إذا كان المستخدم مسجل مسبقاً في الـ LocalStorage
+        window.onload = () => {
+            const savedUser = localStorage.getItem('anyweb_user');
+            if (savedUser) {
+                showApp(savedUser);
             }
-        });
+        };
 
-        // وظيفة تسجيل الدخول بحساب جوجل المباشر
-        function loginWithGoogle() {
-            auth.signInWithPopup(googleProvider)
-                .catch((error) => {
-                    alert("خطأ أثناء تسجيل الدخول بجوجل: " + error.message);
-                });
-        }
-
-        // وظيفة إنشاء حساب جديد بالبريد وكلمة السر
-        function handleEmailSignUp() {
-            const email = document.getElementById('loginEmail').value.trim();
-            const pass = document.getElementById('loginPass').value.trim();
-
-            if (!email || !pass) {
-                alert('الرجاء إدخال البريد الإلكتروني وكلمة السر أولاً!');
+        function localLogin() {
+            const name = document.getElementById('userNameInput').value.trim();
+            if (!name) {
+                alert('الرجاء إدخال اسمك أو إيميلك أولاً!');
                 return;
             }
-
-            auth.createUserWithEmailAndPassword(email, pass)
-                .then(() => alert("تم إنشاء الحساب بنجاح!"))
-                .catch((err) => alert("خطأ في إنشاء الحساب: " + err.message));
+            localStorage.setItem('anyweb_user', name);
+            showApp(name);
         }
 
-        // وظيفة تسجيل الدخول بالبريد وكلمة السر المسجلة مسبقاً
-        function handleEmailLogin() {
-            const email = document.getElementById('loginEmail').value.trim();
-            const pass = document.getElementById('loginPass').value.trim();
-
-            if (!email || !pass) {
-                alert('الرجاء إدخال البريد الإلكتروني وكلمة السر!');
-                return;
-            }
-
-            auth.signInWithEmailAndPassword(email, pass)
-                .catch((err) => alert("خطأ في تسجيل الدخول: " + err.message));
-        }
-
-        // وظيفة تسجيل الخروج
-        function logout() {
-            auth.signOut().then(() => location.reload());
-        }
-
-        // -----------------------------------------------------------------
-        // وظائف بث ومشاركة الشاشة (PeerJS)
-        // -----------------------------------------------------------------
-        function initPeer(userId) {
-            const cleanId = userId.replace(/[^a-zA-Z0-9]/g, '').substring(0, 8);
-            const peerId = 'desk-' + cleanId;
+        function showApp(name) {
+            document.getElementById('authModal').style.display = 'none';
+            document.getElementById('userBadge').style.display = 'flex';
+            document.getElementById('userNameDisplay').innerText = name;
             
+            // توليد رمز فريد ومستقل للبث
+            const cleanId = name.replace(/[^a-zA-Z0-9]/g, '').substring(0, 6) + Math.floor(Math.random() * 1000);
+            initPeer('desk-' + cleanId);
+        }
+
+        function logout() {
+            localStorage.removeItem('anyweb_user');
+            location.reload();
+        }
+
+        function initPeer(peerId) {
             peer = new Peer(peerId);
 
             peer.on('open', (id) => {
@@ -484,7 +354,6 @@
                 document.getElementById('hostInfo').style.display = 'block';
             });
 
-            // استقبال طلبات المشاهدة من الأجهزة الأخرى مع التحقق من كلمة السر
             peer.on('call', (call) => {
                 const incomingPass = call.metadata ? call.metadata.password : null;
                 const myPass = document.getElementById('hostPassword').value;
@@ -501,7 +370,6 @@
             });
         }
 
-        // بدء مشاركة الشاشة
         async function startScreenShare() {
             try {
                 localStream = await navigator.mediaDevices.getDisplayMedia({ 
@@ -512,14 +380,11 @@
                 document.getElementById('remoteVideo').srcObject = localStream;
                 document.getElementById('streamContainer').classList.add('active');
 
-                // توليد QR Code للرابط المباشر
                 const shareUrl = window.location.href.split('?')[0] + '?connect=' + peer.id;
                 document.getElementById('qrcode-box').innerHTML = '';
                 new QRCode(document.getElementById('qrcode-box'), { text: shareUrl, width: 110, height: 110 });
 
                 document.getElementById('startShareBtn').style.display = 'none';
-
-                // إيقاف البث تلقائياً إذا المستخدم ضغط "إيقاف المشاركة" من متصفحه
                 localStream.getVideoTracks()[0].onended = () => stopConnection();
 
             } catch (err) {
@@ -527,13 +392,12 @@
             }
         }
 
-        // الاتصال بجهاز آخر لمشاهدة شاشته
         function connectToRemote() {
             const remoteId = document.getElementById('remoteIdInput').value.trim();
             const remotePass = document.getElementById('remotePassInput').value.trim();
 
             if (!remoteId || !remotePass) {
-                alert('يرجى أدخال رمز الجهاز الآخر وكلمة السر الخاصة به!');
+                alert('يرجى إدخال رمز الجهاز الآخر وكلمة السر الخاصة به!');
                 return;
             }
 
@@ -554,7 +418,6 @@
             });
         }
 
-        // تكبير الفيديو لملء الشاشة
         function toggleFullscreen() {
             const container = document.getElementById('streamContainer');
             if (!document.fullscreenElement) {
@@ -564,7 +427,6 @@
             }
         }
 
-        // إنهاء الاتصال أو البث وإعادة الأوضاع للافتراضي
         function stopConnection() {
             if (localStream) {
                 localStream.getTracks().forEach(track => track.stop());
