@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AnyWeb ⚡ - بث الشاشة السريع</title>
+    <title>AnyWeb ⚡ - بث الشاشة (تليفون وتليفون / لابتوب)</title>
     
     <!-- خطوط وأيقونات الموقع -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -21,6 +21,7 @@
             --purple-accent: #4facfe;
             --text-color: #f1f5f9;
             --danger-color: #ff4b4b;
+            --success-color: #10b981;
         }
 
         * {
@@ -44,7 +45,7 @@
 
         header {
             width: 100%;
-            padding: 20px 40px;
+            padding: 15px 25px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -53,24 +54,25 @@
         }
 
         .logo {
-            font-size: 1.6rem;
+            font-size: 1.4rem;
             font-weight: 900;
             background: linear-gradient(135deg, var(--accent-color), var(--purple-accent));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
         }
 
         .user-profile {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
             background: rgba(255, 255, 255, 0.05);
-            padding: 6px 16px;
+            padding: 6px 14px;
             border-radius: 30px;
             border: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.9rem;
         }
 
         .auth-overlay {
@@ -91,9 +93,9 @@
             background: var(--card-bg);
             border: 1px solid rgba(255, 255, 255, 0.15);
             border-radius: 24px;
-            padding: 35px;
+            padding: 30px 25px;
             width: 90%;
-            max-width: 420px;
+            max-width: 400px;
             text-align: center;
             box-shadow: 0 20px 50px rgba(0,0,0,0.5);
             display: flex;
@@ -140,6 +142,7 @@
             gap: 8px;
             width: 100%;
             transition: 0.3s;
+            font-size: 0.95rem;
         }
 
         .btn-primary {
@@ -147,36 +150,47 @@
             color: #000;
         }
 
+        .btn-danger {
+            background: var(--danger-color);
+            color: #fff;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
         .main-container {
             width: 90%;
             max-width: 1100px;
-            margin: 40px auto;
+            margin: 25px auto;
             display: flex;
             flex-direction: column;
-            gap: 30px;
+            gap: 25px;
         }
 
         .cards-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 25px;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
         }
 
         .card {
             background: var(--card-bg);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 20px;
-            padding: 30px;
+            padding: 25px;
             backdrop-filter: blur(16px);
             display: flex;
             flex-direction: column;
-            gap: 18px;
+            gap: 16px;
         }
 
         #qrcode-box {
             display: flex;
             justify-content: center;
-            padding: 12px;
+            padding: 10px;
             background: #fff;
             border-radius: 12px;
             width: fit-content;
@@ -206,11 +220,13 @@
         
         .stream-controls {
             position: absolute;
-            bottom: 20px;
-            right: 20px;
+            bottom: 15px;
+            right: 15px;
+            left: 15px;
             display: flex;
+            justify-content: center;
             gap: 10px;
-            background: rgba(0,0,0,0.7);
+            background: rgba(0,0,0,0.75);
             padding: 10px;
             border-radius: 12px;
             backdrop-filter: blur(10px);
@@ -219,25 +235,25 @@
 </head>
 <body>
 
-    <!-- نافذة تسجيل دخول محلية فورية بدون أي تعقيد -->
+    <!-- نافذة دخول سريعة -->
     <div class="auth-overlay" id="authModal">
         <div class="auth-card">
-            <h2>تسجيل الدخول إلى AnyWeb</h2>
-            <p style="color: #94a3b8; font-size: 0.85rem;">اكتب اسمك أو إيميلك للبدء فوراً</p>
+            <h2>AnyWeb ⚡</h2>
+            <p style="color: #94a3b8; font-size: 0.85rem;">اكتب اسمك للبدء في مشاركة الشاشة</p>
             
             <div class="input-group">
-                <label>اسم المستخدم أو البريد:</label>
-                <input type="text" id="userNameInput" placeholder="مثال: Anas Sharaf">
+                <label>اسمك أو اسم جهازك:</label>
+                <input type="text" id="userNameInput" placeholder="مثال: موبايل أحمد">
             </div>
 
             <button class="btn btn-primary" onclick="localLogin()">دخول فوري</button>
         </div>
     </div>
 
-    <!-- شريط الهيدر العلوي -->
+    <!-- الشريط العلوي -->
     <header>
         <div class="logo">
-            <i class="fa-solid fa-bolt"></i> AnyWeb Secure
+            <i class="fa-solid fa-mobile-screen-button"></i> AnyWeb
         </div>
         <div class="user-profile" id="userBadge" style="display: none;">
             <span id="userNameDisplay">المستخدم</span>
@@ -245,37 +261,48 @@
         </div>
     </header>
 
-    <!-- الواجهة الأساسية (البث والاستقبال) -->
+    <!-- الواجهة الرئيسية -->
     <div class="main-container">
         <div class="cards-grid">
             
-            <!-- قسم بث الشاشة (Host) -->
+            <!-- 📱 قسم بث الشاشة (تليفون أو لابتوب) -->
             <div class="card">
                 <h3><i class="fa-solid fa-tower-broadcast" style="color: var(--accent-color);"></i> بث شاشة هذا الجهاز</h3>
-                <p style="color: #94a3b8; font-size: 0.85rem;">عين كلمة سر خاصة لجهازك لمنع دخول أي شخص بدون إذنك.</p>
+                <p style="color: #94a3b8; font-size: 0.82rem;">بث شاشة تليفونك لتليفون تاني أو للابتوب بسهولة.</p>
                 
                 <div class="input-group">
-                    <label>كلمة سر حماية الاتصال:</label>
+                    <label>كلمة سر الحماية:</label>
                     <input type="password" id="hostPassword" value="123456">
                 </div>
 
                 <div id="hostInfo" style="display: none;">
                     <div class="input-group">
-                        <label>رمز جهازك الخاص (Device ID):</label>
-                        <input type="text" id="myIdInput" readonly style="text-align: center; font-weight: bold; letter-spacing: 1px;">
+                        <label>رمز جهازك (Device ID):</label>
+                        <input type="text" id="myIdInput" readonly style="text-align: center; font-weight: bold; color: var(--accent-color);">
                     </div>
                     <div id="qrcode-box"></div>
                 </div>
 
+                <!-- زرار بدء البث -->
                 <button class="btn btn-primary" id="startShareBtn" onclick="startScreenShare()">
                     <i class="fa-solid fa-play"></i> بدء بث الشاشة الآن
                 </button>
+
+                <!-- 🔴 زرار إيقاف البث (الجديد) -->
+                <button class="btn btn-danger" id="stopShareBtn" onclick="stopConnection()" style="display: none;">
+                    <i class="fa-solid fa-circle-stop"></i> إيقاف البث الآن
+                </button>
+
+                <!-- 🔗 زرار نسخ الرابط السريع للواتساب (الجديد) -->
+                <button class="btn btn-secondary" id="copyLinkBtn" onclick="copyShareLink()" style="display: none;">
+                    <i class="fa-solid fa-copy"></i> نسخ رابط الاتصال لتليفون تاني
+                </button>
             </div>
 
-            <!-- قسم الاتصال بجهاز آخر (Viewer) -->
+            <!-- 📲 قسم استقبال البث (الاتصال بجهاز آخر) -->
             <div class="card">
-                <h3><i class="fa-solid fa-plug" style="color: var(--accent-color);"></i> الاتصال بجهاز آخر</h3>
-                <p style="color: #94a3b8; font-size: 0.85rem;">أدخل رمز الجهاز الآخر وكلمة السر لمتابعة الشاشة مباشرة.</p>
+                <h3><i class="fa-solid fa-plug" style="color: var(--accent-color);"></i> استقبال شاشة جهاز آخر</h3>
+                <p style="color: #94a3b8; font-size: 0.82rem;">أدخل رمز الجهاز الآخر وكلمة السر للعرض المباشر.</p>
 
                 <div class="input-group">
                     <label>رمز الجهاز المطلوب:</label>
@@ -283,38 +310,43 @@
                 </div>
                 <div class="input-group">
                     <label>كلمة سر الجهاز:</label>
-                    <input type="password" id="remotePassInput" placeholder="أدخل كلمة السر الخاصة به">
+                    <input type="password" id="remotePassInput" placeholder="أدخل كلمة السر">
                 </div>
 
                 <button class="btn btn-primary" onclick="connectToRemote()">
-                    <i class="fa-solid fa-link"></i> اتصال آمن ومباشر
+                    <i class="fa-solid fa-link"></i> اتصال ومتابعة البث
                 </button>
             </div>
 
         </div>
 
-        <!-- مشغل الفيديو الخاص بالعرض -->
+        <!-- مشغل الفيديو والتحكم -->
         <div class="stream-container" id="streamContainer">
             <video id="remoteVideo" autoplay playsinline></video>
             <div class="stream-controls">
-                <button class="btn btn-primary" style="width: auto; padding: 8px 15px;" onclick="toggleFullscreen()">
-                    <i class="fa-solid fa-expand"></i> ملء الشاشة
+                <button class="btn btn-secondary" style="width: auto; padding: 8px 16px;" onclick="toggleFullscreen()">
+                    <i class="fa-solid fa-expand"></i> تكبير الشاشة
                 </button>
-                <button class="btn btn-primary" style="width: auto; padding: 8px 15px; background: var(--danger-color); color: #fff;" onclick="stopConnection()">
+                <button class="btn btn-danger" style="width: auto; padding: 8px 16px;" onclick="stopConnection()">
                     <i class="fa-solid fa-power-off"></i> إنهاء الاتصال
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- الأكواد البرمجية (JavaScript) -->
     <script>
         let peer = null;
         let currentCall = null;
         let localStream = null;
 
-        // التحقق مما إذا كان المستخدم مسجل مسبقاً في الـ LocalStorage
         window.onload = () => {
+            // فحص لو الجاي من رابط سريع
+            const urlParams = new URLSearchParams(window.location.search);
+            const connectId = urlParams.get('connect');
+            if (connectId) {
+                document.getElementById('remoteIdInput').value = connectId;
+            }
+
             const savedUser = localStorage.getItem('anyweb_user');
             if (savedUser) {
                 showApp(savedUser);
@@ -324,7 +356,7 @@
         function localLogin() {
             const name = document.getElementById('userNameInput').value.trim();
             if (!name) {
-                alert('الرجاء إدخال اسمك أو إيميلك أولاً!');
+                alert('الرجاء إدخال اسمك أولاً!');
                 return;
             }
             localStorage.setItem('anyweb_user', name);
@@ -336,8 +368,7 @@
             document.getElementById('userBadge').style.display = 'flex';
             document.getElementById('userNameDisplay').innerText = name;
             
-            // توليد رمز فريد ومستقل للبث
-            const cleanId = name.replace(/[^a-zA-Z0-9]/g, '').substring(0, 6) + Math.floor(Math.random() * 1000);
+            const cleanId = name.replace(/[^a-zA-Z0-9]/g, '').substring(0, 5) + Math.floor(Math.random() * 899 + 100);
             initPeer('desk-' + cleanId);
         }
 
@@ -364,12 +395,13 @@
                         currentCall = call;
                     }
                 } else {
-                    alert('⚠️ محاولة اتصال مرفوضة: كلمة السر غير صحيحة!');
+                    alert('⚠️ رفض الاتصال: كلمة السر غير صحيحة!');
                     call.close();
                 }
             });
         }
 
+        // بدء البث
         async function startScreenShare() {
             try {
                 localStream = await navigator.mediaDevices.getDisplayMedia({ 
@@ -380,24 +412,39 @@
                 document.getElementById('remoteVideo').srcObject = localStream;
                 document.getElementById('streamContainer').classList.add('active');
 
+                // إظهار وإخفاء الأزرار
+                document.getElementById('startShareBtn').style.display = 'none';
+                document.getElementById('stopShareBtn').style.display = 'flex';
+                document.getElementById('copyLinkBtn').style.display = 'flex';
+
+                // إنشاء QR Code
                 const shareUrl = window.location.href.split('?')[0] + '?connect=' + peer.id;
                 document.getElementById('qrcode-box').innerHTML = '';
                 new QRCode(document.getElementById('qrcode-box'), { text: shareUrl, width: 110, height: 110 });
 
-                document.getElementById('startShareBtn').style.display = 'none';
+                // إيقاف البث لو المستخدم قفله من إشعار المتصفح
                 localStream.getVideoTracks()[0].onended = () => stopConnection();
 
             } catch (err) {
-                alert('لم يتم منح الإذن بمشاركة الشاشة.');
+                alert('تنبيه: يجب السماح بتمكين مشاركة الشاشة للبدء.');
             }
         }
 
+        // 🔗 نسخ رابط الاتصال لإرساله لتليفون تاني
+        function copyShareLink() {
+            const shareUrl = window.location.href.split('?')[0] + '?connect=' + peer.id;
+            navigator.clipboard.writeText(shareUrl).then(() => {
+                alert('تم نسخ رابط الاتصال! يمكنك إرساله للتليفون الثاني الآن فتح الصفحة مباشرة.');
+            });
+        }
+
+        // الاتصال بجهاز آخر
         function connectToRemote() {
             const remoteId = document.getElementById('remoteIdInput').value.trim();
             const remotePass = document.getElementById('remotePassInput').value.trim();
 
             if (!remoteId || !remotePass) {
-                alert('يرجى إدخال رمز الجهاز الآخر وكلمة السر الخاصة به!');
+                alert('يرجى إدخال رمز الجهاز وكلمة السر!');
                 return;
             }
 
@@ -413,20 +460,12 @@
             });
 
             call.on('close', () => {
-                alert('تم إنهاء جلسة الاتصال.');
+                alert('تم إنهاء البث.');
                 stopConnection();
             });
         }
 
-        function toggleFullscreen() {
-            const container = document.getElementById('streamContainer');
-            if (!document.fullscreenElement) {
-                container.requestFullscreen().catch(err => alert(err.message));
-            } else {
-                document.exitFullscreen();
-            }
-        }
-
+        // 🔴 إيقاف البث وإنهاء الاتصال
         function stopConnection() {
             if (localStream) {
                 localStream.getTracks().forEach(track => track.stop());
@@ -436,8 +475,21 @@
                 currentCall.close();
                 currentCall = null;
             }
+
+            // إعادة ضبط شكل الأزرار
             document.getElementById('streamContainer').classList.remove('active');
             document.getElementById('startShareBtn').style.display = 'flex';
+            document.getElementById('stopShareBtn').style.display = 'none';
+            document.getElementById('copyLinkBtn').style.display = 'none';
+        }
+
+        function toggleFullscreen() {
+            const container = document.getElementById('streamContainer');
+            if (!document.fullscreenElement) {
+                container.requestFullscreen().catch(err => alert(err.message));
+            } else {
+                document.exitFullscreen();
+            }
         }
     </script>
 </body>
