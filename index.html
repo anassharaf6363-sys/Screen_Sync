@@ -3,20 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AnyWeb ⚡ - بث الشاشة (تليفون وتليفون / لابتوب)</title>
+    <title>WebDesk ⚡ - مشاركة الشاشة الذكية (AnyDesk Web)</title>
     
     <!-- خطوط وأيقونات الموقع -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
     
-    <!-- أدوات الاتصال والبث والـ QR -->
+    <!-- مكتبات الاتصال والـ QR Code -->
     <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
     <style>
         :root {
             --bg-color: #0b0f19;
-            --card-bg: rgba(23, 32, 54, 0.85);
+            --card-bg: rgba(23, 32, 54, 0.9);
             --accent-color: #00f2fe;
             --purple-accent: #4facfe;
             --text-color: #f1f5f9;
@@ -38,6 +38,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            padding-bottom: 40px;
             background-image: 
                 radial-gradient(circle at 15% 15%, rgba(0, 242, 254, 0.08) 0%, transparent 40%),
                 radial-gradient(circle at 85% 85%, rgba(79, 172, 254, 0.08) 0%, transparent 40%);
@@ -51,6 +52,7 @@
             align-items: center;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
+            background: rgba(11, 15, 25, 0.8);
         }
 
         .logo {
@@ -75,6 +77,7 @@
             font-size: 0.9rem;
         }
 
+        /* نافذة تسجيل الاسم السريعة */
         .auth-overlay {
             position: fixed;
             top: 0;
@@ -124,6 +127,7 @@
             color: #fff;
             outline: none;
             font-size: 0.95rem;
+            text-align: center;
         }
 
         input:focus {
@@ -152,6 +156,11 @@
 
         .btn-danger {
             background: var(--danger-color);
+            color: #fff;
+        }
+
+        .btn-success {
+            background: var(--success-color);
             color: #fff;
         }
 
@@ -185,6 +194,7 @@
             display: flex;
             flex-direction: column;
             gap: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
         }
 
         #qrcode-box {
@@ -197,6 +207,7 @@
             margin: 10px auto;
         }
 
+        /* شاشة العرض والتحكم أسفل الموقع */
         .stream-container {
             width: 100%;
             background: #000;
@@ -204,7 +215,9 @@
             overflow: hidden;
             display: none;
             position: relative;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 2px solid var(--accent-color);
+            box-shadow: 0 15px 40px rgba(0, 242, 254, 0.2);
+            margin-top: 10px;
         }
 
         .stream-container.active {
@@ -216,20 +229,20 @@
             height: auto;
             max-height: 75vh;
             display: block;
+            margin: 0 auto;
         }
         
+        video.mode-contain { object-fit: contain; }
+        video.mode-cover { object-fit: cover; }
+
         .stream-controls {
-            position: absolute;
-            bottom: 15px;
-            right: 15px;
-            left: 15px;
             display: flex;
             justify-content: center;
+            flex-wrap: wrap;
             gap: 10px;
-            background: rgba(0,0,0,0.75);
-            padding: 10px;
-            border-radius: 12px;
-            backdrop-filter: blur(10px);
+            background: rgba(11, 15, 25, 0.9);
+            padding: 12px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
         }
     </style>
 </head>
@@ -238,12 +251,12 @@
     <!-- نافذة دخول سريعة -->
     <div class="auth-overlay" id="authModal">
         <div class="auth-card">
-            <h2>AnyWeb ⚡</h2>
-            <p style="color: #94a3b8; font-size: 0.85rem;">اكتب اسمك للبدء في مشاركة الشاشة</p>
+            <h2>WebDesk ⚡</h2>
+            <p style="color: #94a3b8; font-size: 0.85rem;">أدخل اسم جهازك للبدء</p>
             
             <div class="input-group">
-                <label>اسمك أو اسم جهازك:</label>
-                <input type="text" id="userNameInput" placeholder="مثال: موبايل أحمد">
+                <label>اسم جهازك:</label>
+                <input type="text" id="userNameInput" placeholder="مثال: لابتوب أحمد / موبايل">
             </div>
 
             <button class="btn btn-primary" onclick="localLogin()">دخول فوري</button>
@@ -253,11 +266,11 @@
     <!-- الشريط العلوي -->
     <header>
         <div class="logo">
-            <i class="fa-solid fa-mobile-screen-button"></i> AnyWeb
+            <i class="fa-solid fa-desktop"></i> WebDesk Remote
         </div>
         <div class="user-profile" id="userBadge" style="display: none;">
-            <span id="userNameDisplay">المستخدم</span>
-            <i class="fa-solid fa-right-from-bracket" style="cursor: pointer; color: var(--danger-color);" onclick="logout()" title="تسجيل الخروج"></i>
+            <span id="userNameDisplay">جهازي</span>
+            <i class="fa-solid fa-right-from-bracket" style="cursor: pointer; color: var(--danger-color);" onclick="logout()" title="خروج"></i>
         </div>
     </header>
 
@@ -265,10 +278,10 @@
     <div class="main-container">
         <div class="cards-grid">
             
-            <!-- 📱 قسم بث الشاشة (تليفون أو لابتوب) -->
+            <!-- 💻 الخانة الأولى: اللابتوب (جهاز البث) -->
             <div class="card">
-                <h3><i class="fa-solid fa-tower-broadcast" style="color: var(--accent-color);"></i> بث شاشة هذا الجهاز</h3>
-                <p style="color: #94a3b8; font-size: 0.82rem;">بث شاشة تليفونك لتليفون تاني أو للابتوب بسهولة.</p>
+                <h3><i class="fa-solid fa-tower-broadcast" style="color: var(--accent-color);"></i> 💻 خانة اللابتوب (لبث الشاشة)</h3>
+                <p style="color: #94a3b8; font-size: 0.82rem;">استخدم هذه الخانة لبث شاشة اللابتوب وعرضها على الموبايل.</p>
                 
                 <div class="input-group">
                     <label>كلمة سر الحماية:</label>
@@ -277,57 +290,61 @@
 
                 <div id="hostInfo" style="display: none;">
                     <div class="input-group">
-                        <label>رمز جهازك (Device ID):</label>
-                        <input type="text" id="myIdInput" readonly style="text-align: center; font-weight: bold; color: var(--accent-color);">
+                        <label>رمز اللابتوب (Device ID):</label>
+                        <input type="text" id="myIdInput" readonly style="font-weight: bold; color: var(--accent-color);">
                     </div>
                     <div id="qrcode-box"></div>
                 </div>
 
-                <!-- زرار بدء البث -->
                 <button class="btn btn-primary" id="startShareBtn" onclick="startScreenShare()">
-                    <i class="fa-solid fa-play"></i> بدء بث الشاشة الآن
+                    <i class="fa-solid fa-play"></i> بدء بث شاشة اللابتوب
                 </button>
 
-                <!-- 🔴 زرار إيقاف البث (الجديد) -->
                 <button class="btn btn-danger" id="stopShareBtn" onclick="stopConnection()" style="display: none;">
                     <i class="fa-solid fa-circle-stop"></i> إيقاف البث الآن
                 </button>
 
-                <!-- 🔗 زرار نسخ الرابط السريع للواتساب (الجديد) -->
                 <button class="btn btn-secondary" id="copyLinkBtn" onclick="copyShareLink()" style="display: none;">
-                    <i class="fa-solid fa-copy"></i> نسخ رابط الاتصال لتليفون تاني
+                    <i class="fa-solid fa-copy"></i> نسخ رابط الاتصال للموبايل
                 </button>
             </div>
 
-            <!-- 📲 قسم استقبال البث (الاتصال بجهاز آخر) -->
+            <!-- 📱 الخانة الثانية: الموبايل (جهاز الاستقبال والاتصال) -->
             <div class="card">
-                <h3><i class="fa-solid fa-plug" style="color: var(--accent-color);"></i> استقبال شاشة جهاز آخر</h3>
-                <p style="color: #94a3b8; font-size: 0.82rem;">أدخل رمز الجهاز الآخر وكلمة السر للعرض المباشر.</p>
+                <h3><i class="fa-solid fa-mobile-screen-button" style="color: var(--accent-color);"></i> 📱 خانة الموبايل (للاتصال والعرض)</h3>
+                <p style="color: #94a3b8; font-size: 0.82rem;">أدخل رمز اللابتوب وكلمة السر لمشاهدة الشاشة على الموبايل.</p>
 
                 <div class="input-group">
-                    <label>رمز الجهاز المطلوب:</label>
+                    <label>رمز اللابتوب (Remote ID):</label>
                     <input type="text" id="remoteIdInput" placeholder="مثال: desk-xyz123">
                 </div>
                 <div class="input-group">
-                    <label>كلمة سر الجهاز:</label>
+                    <label>كلمة سر اللابتوب:</label>
                     <input type="password" id="remotePassInput" placeholder="أدخل كلمة السر">
                 </div>
 
-                <button class="btn btn-primary" onclick="connectToRemote()">
-                    <i class="fa-solid fa-link"></i> اتصال ومتابعة البث
+                <button class="btn btn-success" onclick="connectToRemote()">
+                    <i class="fa-solid fa-link"></i> اتصال وعرض الشاشة
                 </button>
             </div>
 
         </div>
 
-        <!-- مشغل الفيديو والتحكم -->
+        <!-- 🖥️ شاشة عرض البث المباشر والتحكم بالأسفل -->
         <div class="stream-container" id="streamContainer">
-            <video id="remoteVideo" autoplay playsinline></video>
+            <video id="remoteVideo" autoplay playsinline class="mode-contain"></video>
+            
             <div class="stream-controls">
-                <button class="btn btn-secondary" style="width: auto; padding: 8px 16px;" onclick="toggleFullscreen()">
-                    <i class="fa-solid fa-expand"></i> تكبير الشاشة
+                <button class="btn btn-secondary" style="width: auto; padding: 8px 14px;" onclick="changeVideoFit('contain')">
+                    <i class="fa-solid fa-compress"></i> ملاءمة الشاشة
                 </button>
-                <button class="btn btn-danger" style="width: auto; padding: 8px 16px;" onclick="stopConnection()">
+                <button class="btn btn-secondary" style="width: auto; padding: 8px 14px;" onclick="changeVideoFit('cover')">
+                    <i class="fa-solid fa-expand"></i> ملء الشاشة
+                </button>
+                <button class="btn btn-primary" style="width: auto; padding: 8px 14px;" onclick="toggleFullscreen()">
+                    <i class="fa-solid fa-up-right-and-down-left-from-center"></i> تكبير كامل
+                </button>
+                <button class="btn btn-danger" style="width: auto; padding: 8px 14px;" onclick="stopConnection()">
                     <i class="fa-solid fa-power-off"></i> إنهاء الاتصال
                 </button>
             </div>
@@ -340,14 +357,13 @@
         let localStream = null;
 
         window.onload = () => {
-            // فحص لو الجاي من رابط سريع
             const urlParams = new URLSearchParams(window.location.search);
             const connectId = urlParams.get('connect');
             if (connectId) {
                 document.getElementById('remoteIdInput').value = connectId;
             }
 
-            const savedUser = localStorage.getItem('anyweb_user');
+            const savedUser = localStorage.getItem('webdesk_user');
             if (savedUser) {
                 showApp(savedUser);
             }
@@ -356,10 +372,10 @@
         function localLogin() {
             const name = document.getElementById('userNameInput').value.trim();
             if (!name) {
-                alert('الرجاء إدخال اسمك أولاً!');
+                alert('الرجاء إدخال اسم جهازك أولاً!');
                 return;
             }
-            localStorage.setItem('anyweb_user', name);
+            localStorage.setItem('webdesk_user', name);
             showApp(name);
         }
 
@@ -369,16 +385,24 @@
             document.getElementById('userNameDisplay').innerText = name;
             
             const cleanId = name.replace(/[^a-zA-Z0-9]/g, '').substring(0, 5) + Math.floor(Math.random() * 899 + 100);
-            initPeer('desk-' + cleanId);
+            initPeer('desk-' + cleanId.toLowerCase());
         }
 
         function logout() {
-            localStorage.removeItem('anyweb_user');
+            localStorage.removeItem('webdesk_user');
             location.reload();
         }
 
         function initPeer(peerId) {
-            peer = new Peer(peerId);
+            // إضافة سيرفرات STUN لضمان الربط عبر الشبكات المختلفة
+            peer = new Peer(peerId, {
+                config: {
+                    'iceServers': [
+                        { urls: 'stun:stun.l.google.com:19302' },
+                        { urls: 'stun:stun1.l.google.com:19302' }
+                    ]
+                }
+            });
 
             peer.on('open', (id) => {
                 document.getElementById('myIdInput').value = id;
@@ -401,7 +425,7 @@
             });
         }
 
-        // بدء البث
+        // بدء البث من اللابتوب
         async function startScreenShare() {
             try {
                 localStream = await navigator.mediaDevices.getDisplayMedia({ 
@@ -409,42 +433,42 @@
                     audio: false 
                 });
                 
-                document.getElementById('remoteVideo').srcObject = localStream;
+                const videoElem = document.getElementById('remoteVideo');
+                videoElem.srcObject = localStream;
+                videoElem.muted = true;
                 document.getElementById('streamContainer').classList.add('active');
 
-                // إظهار وإخفاء الأزرار
                 document.getElementById('startShareBtn').style.display = 'none';
                 document.getElementById('stopShareBtn').style.display = 'flex';
                 document.getElementById('copyLinkBtn').style.display = 'flex';
 
-                // إنشاء QR Code
+                // توليد الـ QR Code للاتصال المباشر
                 const shareUrl = window.location.href.split('?')[0] + '?connect=' + peer.id;
                 document.getElementById('qrcode-box').innerHTML = '';
-                new QRCode(document.getElementById('qrcode-box'), { text: shareUrl, width: 110, height: 110 });
+                new QRCode(document.getElementById('qrcode-box'), { text: shareUrl, width: 120, height: 120 });
 
-                // إيقاف البث لو المستخدم قفله من إشعار المتصفح
                 localStream.getVideoTracks()[0].onended = () => stopConnection();
 
             } catch (err) {
-                alert('تنبيه: يجب السماح بتمكين مشاركة الشاشة للبدء.');
+                alert('تنبيه: يجب السماح بتمكين مشاركة الشاشة لبدء البث.');
             }
         }
 
-        // 🔗 نسخ رابط الاتصال لإرساله لتليفون تاني
+        // نسخ رابط الاتصال المباشر
         function copyShareLink() {
             const shareUrl = window.location.href.split('?')[0] + '?connect=' + peer.id;
             navigator.clipboard.writeText(shareUrl).then(() => {
-                alert('تم نسخ رابط الاتصال! يمكنك إرساله للتليفون الثاني الآن فتح الصفحة مباشرة.');
+                alert('تم نسخ رابط الاتصال! يمكنك إرساله للموبايل ليفتح الصفحة ويكتب الكود تلقائياً.');
             });
         }
 
-        // الاتصال بجهاز آخر
+        // الاتصال من الموبايل باللابتوب
         function connectToRemote() {
             const remoteId = document.getElementById('remoteIdInput').value.trim();
             const remotePass = document.getElementById('remotePassInput').value.trim();
 
             if (!remoteId || !remotePass) {
-                alert('يرجى إدخال رمز الجهاز وكلمة السر!');
+                alert('يرجى إدخال رمز اللابتوب وكلمة السر!');
                 return;
             }
 
@@ -454,8 +478,11 @@
             currentCall = call;
 
             call.on('stream', (remoteStream) => {
-                document.getElementById('remoteVideo').srcObject = remoteStream;
+                const videoElem = document.getElementById('remoteVideo');
+                videoElem.srcObject = remoteStream;
                 document.getElementById('streamContainer').classList.add('active');
+                
+                videoElem.play().catch(e => console.log("Autoplay:", e));
                 document.getElementById('streamContainer').scrollIntoView({ behavior: 'smooth' });
             });
 
@@ -465,7 +492,7 @@
             });
         }
 
-        // 🔴 إيقاف البث وإنهاء الاتصال
+        // إيقاف البث والاتصال
         function stopConnection() {
             if (localStream) {
                 localStream.getTracks().forEach(track => track.stop());
@@ -476,11 +503,18 @@
                 currentCall = null;
             }
 
-            // إعادة ضبط شكل الأزرار
             document.getElementById('streamContainer').classList.remove('active');
+            document.getElementById('remoteVideo').srcObject = null;
             document.getElementById('startShareBtn').style.display = 'flex';
             document.getElementById('stopShareBtn').style.display = 'none';
             document.getElementById('copyLinkBtn').style.display = 'none';
+        }
+
+        // التحكم في أبعاد الفيديو
+        function changeVideoFit(mode) {
+            const video = document.getElementById('remoteVideo');
+            video.className = '';
+            video.classList.add(`mode-${mode}`);
         }
 
         function toggleFullscreen() {
